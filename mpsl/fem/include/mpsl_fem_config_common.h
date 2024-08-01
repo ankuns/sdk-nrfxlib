@@ -38,10 +38,33 @@ typedef struct
  */
 typedef struct
 {
-    mpsl_fem_pin_t  gpio_pin;       /**< GPIO port number, register address and pin number relative to the port. */
-    bool            enable;         /**< Enable toggling for this pin. */
-    bool            active_high;    /**< If true, the pin will be active high. Otherwise, the pin will be active low. */
-    uint8_t         gpiote_ch_id;   /**< The GPIOTE channel used for toggling this pin. */
+    /** GPIO port number, register address and pin number relative to the port.
+     * 
+     *  For nRF54L series devices only the pins within a power domain equipped with a GPIOTE can be used.
+     *  For nRF54L15 device pins from GPIO P0 or GPIO P1 can be used, GPIO P2 can not be used.
+    */
+    mpsl_fem_pin_t  gpio_pin;
+
+    /* Enable toggling for this pin. */
+    bool            enable;
+
+    /* If true, the pin will be active high. Otherwise, the pin will be active low. */
+    bool            active_high;
+
+    /** The GPIOTE channel used for toggling the pin.
+     *
+     * For nRF54L series devices it is assumed that the GPIOTE channel belongs to that GPIOTE instance
+     * that allows to control the pin given by @c gpio_pin.
+     */
+    uint8_t         gpiote_ch_id;
+
+#if defined(NRF54L_SERIES)
+    /** The EGU channel numbers (belonging to EGU10 in Radio Power Domain) that need to be provided.
+     *
+     *  The EGU channels are used to interconnect the FEM logic with inter-power-domain.
+     */
+    uint8_t         egu_channels[2];
+#endif
 } mpsl_fem_gpiote_pin_config_t;
 
 /** @brief Configuration parameters for pins that enable or disable (or both) either Power Amplifier (PA) or Low Noise Amplifier (LNA).
